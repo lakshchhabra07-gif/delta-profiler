@@ -1,46 +1,54 @@
-import time
-# Initial dataset 
+import csv
+
 data = []
 
-# Metrics (state)
 metrics = {
     "count": 0,
     "sum": 0,
     "avg": 0
 }
 
-# Load initial data (FULL computation)
+# Load data from CSV
 def load_data():
     global data, metrics
-    data = [10, 20, 30, 40]
+    data = []
 
+    with open("data.csv", "r") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            data.append(int(row["value"]))
+
+    # FULL computation
     metrics["count"] = len(data)
     metrics["sum"] = sum(data)
     metrics["avg"] = metrics["sum"] / metrics["count"]
 
-    print("\n📦 Initial Data Loaded")
+    print("\n📦 Data Loaded from CSV")
     display()
 
 
-# Incremental update (DELTA)
+# Add new data (DELTA)
 def add_new_data():
     global data, metrics
 
     new_value = int(input("\nEnter new value: "))
     data.append(new_value)
 
-    # Incremental update (NO full recompute)
+    # Save to CSV (append)
+    with open("data.csv", "a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow([new_value])
+
+    # Incremental update
     metrics["count"] += 1
     metrics["sum"] += new_value
     metrics["avg"] = metrics["sum"] / metrics["count"]
 
-    print("⚡ Using Incremental Update (FAST)")
-
-    print("✅ Incremental update done")
+    print("⚡ Incremental Update (FAST)")
     display()
 
 
-# Full recompute (for comparison)
+# Full recompute
 def full_recompute():
     global metrics
 
@@ -48,13 +56,11 @@ def full_recompute():
     metrics["sum"] = sum(data)
     metrics["avg"] = metrics["sum"] / metrics["count"]
 
-    print("🐢 Using Full Recompute (SLOW)")
-
-    print("⚠️ Full recompute done")
+    print("🐢 Full Recompute (SLOW)")
     display()
 
 
-# Display metrics
+# Display
 def display():
     print("\n📊 Metrics:")
     print("Count:", metrics["count"])
@@ -62,11 +68,11 @@ def display():
     print("Average:", round(metrics["avg"], 2))
 
 
-# Menu system
+# Menu
 def menu():
     while True:
         print("\n--- MENU ---")
-        print("1. Load Initial Data")
+        print("1. Load Data from CSV")
         print("2. Add New Data (Delta)")
         print("3. Full Recompute")
         print("4. Exit")
@@ -86,5 +92,4 @@ def menu():
             print("❌ Invalid choice")
 
 
-# Run program
 menu()
